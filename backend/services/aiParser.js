@@ -1,39 +1,50 @@
 const chrono = require("chrono-node");
 
 function parseTaskFromTranscript(transcript) {
-  // Lowercase for easier parsing
   const text = transcript.toLowerCase();
 
-  // Extract priority
+  // --- PRIORITY DETECTION ---
   let priority = "Medium";
-  if (text.includes("high priority")) priority = "High";
-  if (text.includes("low priority")) priority = "Low";
 
-  // Extract due date using chrono
+  if (
+    text.includes("high priority") ||
+    text.includes("urgent") ||
+    text.includes("critical") ||
+    text.includes("top priority")
+  ) {
+    priority = "High";
+  } else if (
+    text.includes("low priority") ||
+    text.includes("less important") ||
+    text.includes("low")
+  ) {
+    priority = "Low";
+  } else if (
+    text.includes("medium priority") ||
+    text.includes("normal priority")
+  ) {
+    priority = "Medium";
+  }
+
+  // --- DATE DETECTION ---
   const date = chrono.parseDate(transcript);
   const dueDate = date ? date.toISOString() : null;
 
-  // Extract title (simple heuristic)
+  // --- TITLE EXTRACTION (cleaned) ---
   let title = transcript
-    .replace(/create|add|make|task|to\s*/gi, "")
-    .trim();
-
-  // Remove priority words
-  title = title
-    .replace(/high priority|low priority|medium priority/gi, "")
-    .trim();
-
-  // Remove date phrases
-  title = title
+    .replace(/create|add|make|task|remember to|remind me to/gi, "")
+    .replace(/high priority|low priority|medium priority|urgent|critical/gi, "")
     .replace(/tomorrow|today|next week|next month|by .*/gi, "")
     .trim();
 
+  title = title.charAt(0).toUpperCase() + title.slice(1);
+
   return {
-    title: title.charAt(0).toUpperCase() + title.slice(1),
+    title,
     priority,
     dueDate,
     description: "",
-    status: "To Do"
+    status: "To Do",
   };
 }
 
