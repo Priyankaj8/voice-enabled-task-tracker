@@ -3,48 +3,67 @@ const chrono = require("chrono-node");
 function parseTaskFromTranscript(transcript) {
   const text = transcript.toLowerCase();
 
-  // --- PRIORITY DETECTION ---
+  /* ---------------- PRIORITY DETECTION ---------------- */
   let priority = "Medium";
-
-  if (
-    text.includes("high priority") ||
-    text.includes("urgent") ||
-    text.includes("critical") ||
-    text.includes("top priority")
-  ) {
+  if (text.includes("high priority") || text.includes("urgent") || text.includes("critical")) {
     priority = "High";
-  } else if (
-    text.includes("low priority") ||
-    text.includes("less important") ||
-    text.includes("low")
-  ) {
-    priority = "Low";
-  } else if (
-    text.includes("medium priority") ||
-    text.includes("normal priority")
-  ) {
+  } 
+  if (text.includes("medium priority")) {
     priority = "Medium";
   }
+  if (text.includes("low priority")) {
+    priority = "Low";
+  }
 
-  // --- DATE DETECTION ---
+  /* ---------------- STATUS DETECTION ---------------- */
+  let status = "To Do";
+
+  if (
+    text.includes("done") ||
+    text.includes("mark as done") ||
+    text.includes("completed") ||
+    text.includes("complete it")
+  ) {
+    status = "Done";
+  }
+
+  if (
+    text.includes("in progress") ||
+    text.includes("mark as in progress") ||
+    text.includes("start working on")
+  ) {
+    status = "In Progress";
+  }
+
+  if (text.includes("to do") || text.includes("todo")) {
+    status = "To Do";
+  }
+
+  /* ---------------- DATE EXTRACTION ---------------- */
   const date = chrono.parseDate(transcript);
   const dueDate = date ? date.toISOString() : null;
 
-  // --- TITLE EXTRACTION (cleaned) ---
-  let title = transcript
-    .replace(/create|add|make|task|remember to|remind me to/gi, "")
+  /* ---------------- TITLE CLEANUP ---------------- */
+  let title = transcript;
+
+  // Remove command phrases
+  title = title
+    .replace(/create|add|make|task|remind me|please|mark as|set|to do|todo/gi, "")
     .replace(/high priority|low priority|medium priority|urgent|critical/gi, "")
-    .replace(/tomorrow|today|next week|next month|by .*/gi, "")
+    .replace(/mark as done|done|completed|complete it/gi, "")
+    .replace(/in progress|start working on/gi, "")
+    .replace(/by .*/gi, "") // remove date phrases
     .trim();
 
-  title = title.charAt(0).toUpperCase() + title.slice(1);
+  // Capitalize first letter
+  let cleanedTitle = title.charAt(0).toUpperCase() + title.slice(1);
 
   return {
-    title,
+    title: cleanedTitle || "Untitled Task",
     priority,
     dueDate,
     description: "",
-    status: "To Do",
+    status
   };
 }
 
