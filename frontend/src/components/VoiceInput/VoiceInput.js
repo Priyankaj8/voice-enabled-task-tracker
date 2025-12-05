@@ -16,52 +16,52 @@ function VoiceInput({ onTaskParsed }) {
       recognition.lang = 'en-US';
 
       recognition.onstart = () => {
-        console.log('🎤 Recording started');
+        console.log('Recording started');
       };
 
       recognition.onresult = async (event) => {
         const text = event.results[0][0].transcript;
-        console.log('📝 Transcript received:', text);
+        console.log(' Transcript received:', text);
         setIsRecording(false);
 
         try {
-          console.log('🔄 Sending to backend...');
+          console.log('Sending to backend...');
           
           const response = await axios.post('http://localhost:5000/api/parse', {
             transcript: text
           });
           
-          console.log('✅ Backend response:', response.data);
+          console.log('Backend response:', response.data);
           onTaskParsed(response.data.transcript, response.data.parsed);
           
         } catch (error) {
-          console.error('❌ Error:', error);
-          console.error('❌ Error details:', error.response?.data);
+          console.error('Error:', error);
+          console.error('Error details:', error.response?.data);
           alert('Failed to parse: ' + (error.response?.data?.error || error.message));
         }
       };
 
       recognition.onerror = (event) => {
-        console.error('❌ Speech error:', event.error);
+        console.error('Speech error:', event.error);
         setIsRecording(false);
         alert('Speech recognition error: ' + event.error);
       };
 
       recognition.onend = () => {
-        console.log('🛑 Recording ended');
+        console.log('Recording ended');
         setIsRecording(false);
       };
 
       recognitionRef.current = recognition;
     } else {
-      console.error('❌ Speech recognition not supported');
+      console.error('Speech recognition not supported');
     }
   }, [onTaskParsed]);
 
   const startRecording = () => {
-    console.log('👆 Voice Input button clicked');
+    console.log('Voice Input button clicked');
     if (recognitionRef.current) {
-      console.log('🎙️ Starting recognition...');
+      console.log('Starting recognition...');
       recognitionRef.current.start();
       setIsRecording(true);
     } else {
@@ -70,7 +70,7 @@ function VoiceInput({ onTaskParsed }) {
   };
 
   const stopRecording = () => {
-    console.log('⏹️ Stopping recording...');
+    console.log('Stopping recording...');
     if (recognitionRef.current) {
       recognitionRef.current.stop();
     }
