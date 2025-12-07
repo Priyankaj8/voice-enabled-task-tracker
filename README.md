@@ -325,5 +325,3 @@ Supports filtering:
 **Priyanka J**  
 Voice-Enabled Task Tracker
 ---
-
-- React, Redux, and Express communities for excellent documentation
